@@ -1,0 +1,9 @@
+# runtime data — audit trail, consent state, vault, clusters, artifacts, backups
+data/
+
+# node / tooling
+node_modules/
+npm-debug.log*
+*.log
+.env
+.env.*

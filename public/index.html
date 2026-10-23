@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'">
+<title>HAXORDASH // opencode control</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="boot" title="click to skip">
+  <pre id="boot-pre"></pre>
+</div>
+<div id="crt"></div>
+
+<header id="hdr">
+  <div class="brand">
+    <pre class="skull" aria-hidden="true">
+  .-"      "-.
+ /            \
+|              |
+|,  .-.  .-.  ,|
+| )(__/  \__)( |
+|/     /\     \|
+(_     ^^     _)
+ \__|IIIIII|__/
+  | \IIIIII/ |
+  \          /
+   `--------`
+</pre>
+    <div class="brand-text">
+      <h1>HAXOR<span class="accent">DASH</span></h1>
+      <div class="sub">opencode control center · <span id="clock">--:--:--</span></div>
+    </div>
+  </div>
+  <div class="sysline">
+    <span class="pill" id="oc-pill"><i class="dot" id="oc-dot"></i> opencode: probing…</span>
+    <span class="pill" id="arm-pill" hidden><i class="dot armed"></i> <span id="arm-text">ARMED</span></span>
+  </div>
+</header>
+
+<div class="layout">
+  <nav id="nav" aria-label="sections">
+    <button class="nav-btn" data-tab="status"> ◉ STATUS</button>
+    <button class="nav-btn" data-tab="sessions"> ⌨ SESSIONS</button>
+    <button class="nav-btn" data-tab="mcp"> ⛁ MCPs</button>
+    <button class="nav-btn" data-tab="skills"> ✦ SKILLS</button>
+    <button class="nav-btn" data-tab="vault"> ★ VAULT</button>
+    <button class="nav-btn" data-tab="cluster"> ⌬ CLUSTER</button>
+    <button class="nav-btn" data-tab="plugins"> ⚙ PLUGINS</button>
+    <button class="nav-btn" data-tab="config"> ▤ CONFIG</button>
+    <button class="nav-btn danger-zone" data-tab="ops"> ☠ OPS</button>
+    <button class="nav-btn" data-tab="audit"> ≡ AUDIT</button>
+    <div class="nav-foot">
+      <div class="hint">loopback only · consent-gated<br>audit trail always on<br><span class="muted small">alt+1…9(+0) = tabs</span></div>
+      <div id="themes">
+        <button class="swatch" data-theme="phosphor" title="phosphor"></button>
+        <button class="swatch" data-theme="amber" title="amber"></button>
+        <button class="swatch" data-theme="glacier" title="glacier"></button>
+        <button class="swatch" data-theme="blood" title="blood"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" role="main"><section class="panel"><div class="pad muted">booting…</div></section></main>
+</div>
+
+<footer id="feed">
+  <div class="feed-head">
+    <span class="accent">▊ event feed</span>
+    <span class="feed-note">opencode + ops stream</span>
+    <button class="btn tiny" id="feed-clear">clear</button>
+    <button class="btn tiny" id="feed-toggle">▾</button>
+  </div>
+  <div id="feed-body"></div>
+</footer>
+
+<div id="toasts"></div>
+
+<dialog id="modal">
+  <div class="modal-bar"><span id="modal-title">modal</span><button class="btn tiny" id="modal-x">✕</button></div>
+  <div id="modal-body"></div>
+</dialog>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

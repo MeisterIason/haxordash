@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Syntax-check every JS entry point (zero deps, no build)
+        run: |
+          node --check server.js
+          for f in lib/*.js public/app.js; do node --check "$f"; done
+
+      - name: Boot dashboard + health probe
+        run: |
+          node server.js &
+          sleep 2
+          curl -fsS -o /dev/null -w "health=%{http_code}\n" http://127.0.0.1:3969/health | tee /dev/stderr | grep -q "health=200"
+          curl -fsS -o /dev/null -w "index=%{http_code}\n"  http://127.0.0.1:3969/ | tee /dev/stderr | grep -q "index=200"
+          curl -fsS -o /dev/null -w "appjs=%{http_code}\n"  http://127.0.0.1:3969/app.js | tee /dev/stderr | grep -q "appjs=200"
+
+      - name: Consent gate refuses without OpenCode (graceful, not 500)
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:3969/ops/run -H 'Content-Type: application/json' -d '{"tool":"whoami","args":"","target":"127.0.0.1"}')
+          echo "ops/run while disarmed → $code"
+          test "$code" = "403"

@@ -1,0 +1,33 @@
+{
+  "name": "hackerdash",
+  "version": "1.0.0",
+  "description": "HAXORDASH — phosphor-CRT local dashboard for OpenCode (MCP/skills/config/sessions control, model cluster swarms, consent-gated audited ops). Zero npm dependencies.",
+  "main": "server.js",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check lib/opencode.js && node --check lib/config.js && node --check lib/skills.js && node --check lib/ops.js && node --check lib/agent.js && node --check lib/probe.js && node --check lib/intel.js && node --check lib/cluster.js && node --check public/app.js"
+  },
+  "keywords": [
+    "opencode",
+    "mcp",
+    "dashboard",
+    "crt",
+    "security",
+    "recon",
+    "agent",
+    "llm",
+    "swarm",
+    "cluster"
+  ],
+  "license": "MIT",
+  "private": true,
+  "author": "iason",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOURNAME/haxordash.git"
+  }
+}
