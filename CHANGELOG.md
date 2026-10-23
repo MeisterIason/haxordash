@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.1 — 2026-10-23
+
+Packaging release — ships together with OpenCode.
+
+- `install.cmd` / `install.sh` bootstrap: verifies Node ≥ 20 and auto-installs
+  the OpenCode CLI (`@opencode/cli@latest` via npm) when missing — the exact
+  distribution this setup is battle-tested on (v2.1.2)
+- `start.cmd` prints a one-time hint when `opencode` is not on PATH
+- Distribution zip is cut straight from the git tree (`git archive`), so it
+  never ships runtime `data/`, `.git`, or credentials; the dashboard keeps
+  reading its OpenCode creds live from `~/.config/opencode/service.json`
+  (nothing is vendored or embedded)
+
 ## 1.0.0 — 2026-10-23
 
 First tagged release.

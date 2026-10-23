@@ -44,7 +44,21 @@ cd haxordash
 ```
 
 There is nothing to install. **Zero npm dependencies, no build step** —
-any Node ≥ 20 runs it.
+One bootstrap brings OpenCode itself alongside the dashboard:
+
+```bat
+install.cmd      :: Windows - verifies Node 20+, installs the opencode CLI
+                    (@opencode/cli via npm) when it is missing
+./install.sh     :: POSIX equivalent
+start.cmd        :: run the dashboard -> http://127.0.0.1:3969
+```
+
+> Already have `opencode` on PATH? Skip the bootstrap — `start.cmd` works as
+> before. On first run the dashboard wants the OpenCode background service
+> up: launch `opencode` once, or set `OPENCODE_BASE_URL`.
+> Not a git person? Unzip the release archive and run the same three
+> commands — archives are cut straight from the git tree (`git archive`),
+> so they never contain runtime data or `.git`.
 
 > Already using OpenCode? The dashboard auto-discovers the shared background
 > service (url + credentials) from `opencode service status` /
