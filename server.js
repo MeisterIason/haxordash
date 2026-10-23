@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { oc, ocJson, authHeader, discover, invalidate } from './lib/opencode.js';
+import { sessSearch } from './lib/sesssearch.js';
 import * as cfg from './lib/config.js';
 import * as skills from './lib/skills.js';
 import * as ops from './lib/ops.js';
@@ -267,6 +268,9 @@ const server = http.createServer(async (req, res) => {
 
     if (p === '/ops/probe/dns' && req.method === 'POST') return json(res, 200, await probe.probeDNS(await readJsonBody(req)));
     if (p === '/ops/probe/http' && req.method === 'POST') return json(res, 200, await probe.probeHTTP(await readJsonBody(req)));
+
+    // ================= sessions content search =================
+    if (p === '/api/sess-search' && req.method === 'GET') return json(res, 200, await sessSearch(u.searchParams.get('q')));
 
     // ================= intel vault =================
     if (p === '/intel' && req.method === 'GET') return json(res, 200, { items: intel.listIntel() });

@@ -257,10 +257,9 @@ async function renderSessions(main) {
   async function refreshList() {
     let rows = [];
     try { rows = (await get('/oc/api/session?limit=60&order=desc')).data || []; }
-    catch (e) { listWrap.innerHTML = `<div class="muted">${esc(e.message)}</div>`; return; }
+    catch (e) { const el = listWrap.querySelector('#sess-list'); if (el) el.innerHTML = `<div class="muted">${esc(e.message)}</div>`; return; }
+    const el = listWrap.querySelector('#sess-list'); if (!el) return;
     const q = (listWrap.querySelector('#sess-filter')?.value || '').toLowerCase();
-    const el = listWrap.querySelector('#sess-list') || document.createElement('div');
-    el.id = 'sess-list'; el.className = 'sess-list';
     el.innerHTML = rows.filter(s => !q || JSON.stringify(s).toLowerCase().includes(q)).map(s => {
       const t = esc(s.title || s.id);
       const upd = s.time?.updated ? fmtTime(s.time.updated) : '';
@@ -270,17 +269,57 @@ async function renderSessions(main) {
         <div class="sid">${esc(s.id)} · ${upd}${tk}</div>
       </div>`;
     }).join('');
-    if (!el.isConnected) { listWrap.innerHTML = `<div class="row"><input id="sess-filter" placeholder="filter sessions…" style="flex:1"></div>`; listWrap.appendChild(el); listWrap.querySelector('#sess-filter').addEventListener('input', refreshList); }
     el.querySelectorAll('.sess-item').forEach(x => x.addEventListener('click', () => { tabState.sessionsSel = x.dataset.id; openSession(x.dataset.id); }));
   }
+
+  async function runSearch() {
+    const qEl = listWrap.querySelector('#sess-q');
+    const box = listWrap.querySelector('#sess-results');
+    const q = (qEl.value || '').trim();
+    if (q.length < 2) { toast('2+ characters to search', 'warn'); return; }
+    box.hidden = false;
+    box.innerHTML = '<div class="blink muted">⌕ scanning titles + messages…</div>';
+    try {
+      const r = await get('/api/sess-search?q=' + encodeURIComponent(q));
+      box.innerHTML = sessResultsHtml(r);
+      box.querySelectorAll('.sess-sr').forEach(n => n.addEventListener('click', () => { tabState.sessionsSel = n.dataset.id; openSession(n.dataset.id); }));
+    } catch (e) { box.innerHTML = `<div class="muted">search: ${esc(e.message)}</div>`; }
+  }
+
+  function sessResultsHtml(r) {
+    const rows = r.matches.map(m => `<div class="sess-item sess-sr" data-id="${esc(m.id)}">
+      <div>${esc(m.title)}${m.titleHit ? ' <span class="badge idle">title</span>' : ''}${m.msgHits ? ` <span class="badge idle">${m.msgHits} hit(s)</span>` : ''}</div>
+      ${m.snippet ? `<div class="sid">${esc(m.snippet.role)}: ${esc(m.snippet.text)}</div>` : ''}
+    </div>`).join('');
+    return `<div class="row" style="margin-bottom:8px">
+      <span class="muted small" style="flex:1">⌕ ${esc(r.q)} — ${r.matches.length} match(es) · scanned ${r.scanned}/${r.total} sessions${r.seconds ? ` · ${r.seconds}s` : ''}${r.truncated ? ' · first 50 shown' : ''}</span>
+      <button class="btn tiny kill" data-act="closeres">✕</button>
+    </div>${rows || '<div class="muted">nothing matched</div>'}`;
+  }
+
   listWrap.addEventListener('click', async (e) => {
     if (e.target.dataset?.act === 'refresh') await refreshList();
     if (e.target.dataset?.act === 'new') await withSpin(e.target, async () => {
       const r = await post('/oc/api/session', { title: 'haxordash session' });
       await refreshList(); toast('session created ' + (r.data?.id || r.id || '(refresh failed)'));
     });
+    if (e.target.dataset?.act === 'dosearch') await withSpin(e.target, runSearch);
+    if (e.target.dataset?.act === 'closeres') { const b = listWrap.querySelector('#sess-results'); if (b) { b.hidden = true; b.innerHTML = ''; } }
   });
-  listWrap.innerHTML = `<div class="row" style="margin-bottom:8px"><button class="btn tiny" data-act="new">＋ new</button><button class="btn tiny" data-act="refresh">⟳ refresh</button></div><div id="sess-list"><div class="muted">loading…</div></div>`;
+  listWrap.innerHTML = `<div class="row" style="margin-bottom:8px">
+      <button class="btn tiny" data-act="new">＋ new</button><button class="btn tiny" data-act="refresh">⟳ refresh</button>
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <input id="sess-q" placeholder="search all sessions (incl. message text)…" style="flex:1">
+      <button class="btn tiny" data-act="dosearch">⌕ search</button>
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <input id="sess-filter" placeholder="quick filter (loaded titles)…" style="flex:1">
+    </div>
+    <div id="sess-results" hidden></div>
+    <div id="sess-list"><div class="muted">loading…</div></div>`;
+  listWrap.querySelector('#sess-filter').addEventListener('input', refreshList);
+  listWrap.querySelector('#sess-q').addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch().catch(() => {}); });
   refreshList();
   if (tabState.sessionsSel) openSession(tabState.sessionsSel).catch(() => {}); // e.g. after deploy from OPS tab
 

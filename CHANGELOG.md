@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.3 — 2026-10-23
+
+Sessions content search.
+
+- New endpoint `GET /api/sess-search?q=…` — scans titles **and message text**
+  across all sessions via the OpenCode API, batched 6-wide, returns one row
+  per session with title/message hit counts and a first-match snippet
+  (≤ 50 matches, newest first)
+- `⌨ SESSIONS` tab gains a search box (Enter or ⌕ button): results show the
+  matched role (`operator` / `agent` / `title`) with the snippet, and clicking
+  a result opens that session in the viewer
+- Quick filter stays for the 60 loaded titles; search reaches everything
+
 ## 1.0.2 — 2026-10-23
 
 Linux port — verified live on Kali Linux (WSL2), 18-check suite green.

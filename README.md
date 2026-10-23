@@ -124,7 +124,7 @@ loopback only.
 | tab | what it does |
 |---|---|
 | `◉ STATUS` | service vitals, agent roster, providers, MCP status, **token ledger** across all sessions |
-| `⌨ SESSIONS` | live chat viewer + composer (prompt / interrupt / fork / delete), mission presets, live agent & model switching, permission replies |
+| `⌨ SESSIONS` | live chat viewer + composer (prompt / interrupt / fork / delete), **content search across all sessions** (titles + message text snippets), quick filter, mission presets, live agent & model switching, permission replies |
 | `⛁ MCP` | live MCP status, connect/disconnect, add (local command / remote url), remove — shape-aware for both config layouts |
 | `✦ SKILLS` | list / create / edit / delete skills in `~/.config/opencode/skills` |
 | `★ VAULT` | structured findings (severity / target / evidence / source) + markdown report export |
