@@ -202,6 +202,7 @@ Runtime files (gitignored): `data/audit.log` (append-only),
 
 | symptom | fix |
 |---|---|
+| double-clicking a `.js` file throws `800A03EA` (JScript syntax error) | that's Windows Script Host (a 2008-era engine), **not Node** — it can't parse `import`/`=>`. Launch with `start.cmd` / `npm start`; run scripts with `node <file>` |
 | `opencode unreachable` | run `opencode` once so the shared service is up, or set `OPENCODE_BASE_URL` |
 | `EADDRINUSE` on 3969 | kill the previous instance (command above) |
 | cluster stuck in `planning` | check the model — a broken/free provider hangs sessions; pick a working model in the spawn panel |
