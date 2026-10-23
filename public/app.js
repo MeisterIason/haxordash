@@ -28,6 +28,7 @@ async function api(path, opts = {}) {
 const get = (p) => api(p);
 const post = (p, body = {}) => api(p, { method: 'POST', body });
 const put = (p, body) => api(p, { method: 'PUT', body });
+const patch = (p, body) => api(p, { method: 'PATCH', body });
 const del = (p) => api(p, { method: 'DELETE' });
 
 function toast(msg, kind = 'ok', ms = 4200) {
@@ -398,8 +399,9 @@ async function renderSessions(main) {
   const send = document.createElement('button'); send.className = 'btn primary'; send.textContent = 'send ▸';
   const interrupt = document.createElement('button'); interrupt.className = 'btn warn'; interrupt.textContent = '⏹ interrupt';
   const fork = document.createElement('button'); fork.className = 'btn ghost'; fork.textContent = '⑂ fork';
+  const renameBtn = document.createElement('button'); renameBtn.className = 'btn ghost'; renameBtn.textContent = '✎ rename';
   const delBtn = document.createElement('button'); delBtn.className = 'btn danger'; delBtn.textContent = '🗑 delete';
-  inner.append(ta, send, interrupt, fork, delBtn);
+  inner.append(ta, send, interrupt, fork, renameBtn, delBtn);
   composer.appendChild(inner);
   rbody.after(composer);
 
@@ -418,6 +420,14 @@ async function renderSessions(main) {
   fork.addEventListener('click', async () => {
     const id = tabState.sessionsSel; if (!id) return;
     await withSpin(fork, async () => { const r = await post(`/oc/api/session/${id}/fork`); toast('forked → ' + (r.data?.id || r.id || '(?)')); refreshList(); });
+  });
+  renameBtn.addEventListener('click', async () => {
+    const id = tabState.sessionsSel; if (!id) return;
+    const sess = await get(`/oc/api/session/${id}`);
+    const current = sess.data?.title || sess.title || id;
+    const next = prompt('rename session:', current);
+    if (!next || next === current) return;
+    try { await patch(`/oc/api/session/${id}`, { title: next }); toast('renamed'); refreshList(); openSession(id); } catch (e) { toastErr(e); }
   });
   delBtn.addEventListener('click', async () => {
     const id = tabState.sessionsSel; if (!id) return;
