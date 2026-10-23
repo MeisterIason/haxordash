@@ -1,6 +1,6 @@
 {
   "name": "hackerdash",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "HAXORDASH — phosphor-CRT local dashboard for OpenCode (MCP/skills/config/sessions control, model cluster swarms, consent-gated audited ops). Zero npm dependencies.",
   "main": "server.js",
   "type": "module",

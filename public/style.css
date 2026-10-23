@@ -167,6 +167,11 @@ tr:hover td { background: var(--tint); }
 .sess-item { padding: 7px 10px; border-bottom: 1px solid var(--line); cursor: pointer; font-size: 12px; }
 .sess-item:hover { background: var(--tint); }
 .sess-item.sel { background: var(--tint-3); border-left: 2px solid var(--grn); }
+
+/* session viewer: transcript scrolls, composer always pinned at the bottom */
+.sess-viewer { display: flex; flex-direction: column; height: calc(100vh - 64px - 140px - 36px); min-height: 340px; }
+.sess-vbody { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 10px 10px 16px; }
+.sess-composer { margin: 0 10px 10px; padding-top: 8px; border-top: 1px solid var(--line); flex: none; }
 .sess-item .sid { color: var(--mut); font-size: 10px; }
 
 .msg { border: 1px solid var(--line); border-radius: 3px; margin-bottom: 10px; background: var(--panel-2); }

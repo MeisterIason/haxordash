@@ -251,6 +251,7 @@ async function renderSessions(main) {
   const g = document.createElement('div'); g.className = 'sess-grid'; main.appendChild(g);
   const left = panel('sessions');
   const right = panel('session viewer');
+  right.classList.add('sess-viewer');
 
   const listWrap = pad(left);
 
@@ -324,7 +325,7 @@ async function renderSessions(main) {
   if (tabState.sessionsSel) openSession(tabState.sessionsSel).catch(() => {}); // e.g. after deploy from OPS tab
 
   const rwrap = document.createElement('div'); rwrap.appendChild(right); g.append(left, rwrap);
-  const rbody = document.createElement('div'); rbody.className = 'pad'; right.appendChild(rbody);
+  const rbody = document.createElement('div'); rbody.className = 'sess-vbody'; right.appendChild(rbody);
   rbody.innerHTML = '<div class="muted">select a session</div>';
 
   async function openSession(id) {
@@ -383,10 +384,13 @@ async function renderSessions(main) {
         tr.append(yes, no); box.appendChild(tr);
       }
     } catch { /* optional */ }
+
+    // pin the transcript at the bottom like a chat client
+    rbody.scrollTop = rbody.scrollHeight;
   }
 
   // composer
-  const composer = document.createElement('div'); composer.className = 'row'; composer.style.marginTop = '8px';
+  const composer = document.createElement('div'); composer.className = 'row sess-composer';
   const ta = document.createElement('textarea'); ta.id = 'sess-input'; ta.rows = 2; ta.placeholder = 'prompt the selected session… (Enter = send, Shift+Enter = newline)';
   ta.style.flex = '1';
   const send = document.createElement('button'); send.className = 'btn'; send.textContent = 'send ▸';
@@ -416,7 +420,7 @@ async function renderSessions(main) {
   delBtn.addEventListener('click', async () => {
     const id = tabState.sessionsSel; if (!id) return;
     if (!confirm('delete session ' + id + '?')) return;
-    try { await del(`/oc/api/session/${id}`); toast('session deleted'); rbody.innerHTML = 'select a session'; tabState.sessionsSel = null; refreshList(); } catch (e) { toastErr(e); }
+    try { await del(`/oc/api/session/${id}`); toast('session deleted'); rbody.innerHTML = 'select a session'; rbody.dataset.sig = ''; rbody.dataset.session = ''; tabState.sessionsSel = null; refreshList(); } catch (e) { toastErr(e); }
   });
 
   // mission presets + agent/model switching

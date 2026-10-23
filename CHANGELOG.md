@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.4 — 2026-10-23
+
+Session viewer layout fix.
+
+- The composer bar (prompt input, send / interrupt / fork / 🗑 delete) is
+  now **pinned to the bottom of the viewer** — always visible, no scrolling
+- The transcript scrolls independently inside the panel and auto-pins to
+  the newest message on each render (chat-client behavior); the composer
+  never moves out of reach
+- Session-deletion state resets the poll signature so a re-render fires
+  cleanly afterwards
+
 ## 1.0.3 — 2026-10-23
 
 Sessions content search.
