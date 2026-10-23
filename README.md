@@ -9,6 +9,8 @@
 [![build](https://img.shields.io/badge/build-1024x768%20CRT%2020Hz-black?style=flat-square)](#preview)
 [![license](https://img.shields.io/badge/license-MIT-red?style=flat-square)](LICENSE)
 [![loopback](https://img.shields.io/badge/bind-127.0.0.1%20only-success?style=flat-square)](#security-model)
+[![tests](https://img.shields.io/badge/tests-32%2F32%20win32-green?style=flat-square)](#test)
+[![tested](https://img.shields.io/badge/tested-kali%20WSL2%2018%2F18-green?style=flat-square)](#run-linux)
 
 *opencode control · model swarms · recon ops · one audit trail*
 
@@ -39,7 +41,7 @@ led by an orchestrator session.
 ## Install
 
 ```bash
-git clone https://github.com/YOURNAME/haxordash.git
+git clone https://github.com/MeisterIason/haxordash.git
 cd haxordash
 ```
 
