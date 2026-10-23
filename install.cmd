@@ -3,7 +3,7 @@ setlocal EnableExtensions
 title HAXORDASH - setup
 echo.
 echo   #################################
-echo   #     HAXORDASH setup 1.0.1     #
+echo   #     HAXORDASH setup 1.0.2     #
 echo   #################################
 echo.
 

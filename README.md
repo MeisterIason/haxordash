@@ -85,6 +85,32 @@ Stop: close the console window, or `Ctrl+C`, or:
 Get-NetTCPConnection -LocalPort 3969 | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
 ```
 
+## Run (Linux)
+
+Runs natively — the $XDG discovery of the opencode service, consent gate,
+probes, pipelines, vault and cluster mode are platform-agnostic:
+
+```bash
+./install.sh        # verifies node ≥ 20, installs the opencode CLI if missing
+node server.js      # http://127.0.0.1:3969 — same loopback-only bind
+```
+
+Local sweeps map to their POSIX equivalents automatically:
+
+| sweep | Windows | Linux |
+|---|---|---|
+| connections & listeners | `netstat -ano` | `ss -tunap` |
+| arp cache | `arp -a` | `ip neigh` |
+| process table | `tasklist` | `ps auxww` |
+
+Tool detection uses `which` instead of `where.exe`; the allowlist itself
+(nmap, nuclei, httpx, subfinder, dig, …) is identical — those tools feel
+more at home on Linux anyway. One rule carries over: the dashboard and the
+OpenCode service must run on the same side. Under WSL2 that means running
+both inside WSL, or enabling mirrored networking (Windows 11
+`.wslconfig` → `networkingMode=mirrored`) — the opencode service binds
+loopback only.
+
 ## Preview
 
 - 10 CRT tabs (`Alt+1…9`, `Alt+0`), phosphor / amber / glacier / blood themes,

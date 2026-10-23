@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.2 — 2026-10-23
+
+Linux port — verified live on Kali Linux (WSL2), 18-check suite green.
+
+- Local sweeps are platform-aware: `netstat.exe`/`arp.exe`/`tasklist.exe` on
+  Windows, `ss -tunap` / `ip neigh` / `ps auxww` on Linux — same row shape,
+  no UI changes
+- Tool detection uses `which` on POSIX (`where.exe` stays on Windows)
+- Everything else was already portable: XDG config discovery, pure-Node
+  DNS/HTTP probes, consent gate, audit trail, cluster mode, CRT cockpit
+- Windows regression: ops/feature suite still 32/32
+
 ## 1.0.1 — 2026-10-23
 
 Packaging release — ships together with OpenCode.
