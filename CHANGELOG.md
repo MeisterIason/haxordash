@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.5 — 2026-10-23
+
+UI cleanup — bigger, clearer buttons, cleaner hierarchy.
+
+- Button system overhaul: three semantic weights — **primary** (green, main actions),
+  **warn** (amber, state-changing), **danger** (red, destructive), **ghost** (transparent, secondary)
+  — replaces the old `btn` / `btn warn` / `btn kill` / `btn tiny` soup
+- All inputs, textareas, selects: larger font (13.5px), more padding, rounded corners
+- Panels: more padding, rounded corners, softer shadows, better visual grouping
+- Session viewer: composer bar pins cleanly, controls use new button semantics
+- Every inline button across all tabs updated (MCP, Skills, Plugins, Config, OPS, Vault, Clusters)
+- No more `tiny` — the default size is comfortable; `compact` row helper for tight groups
+
 ## 1.0.4 — 2026-10-23
 
 Session viewer layout fix.

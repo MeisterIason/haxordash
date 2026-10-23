@@ -237,10 +237,10 @@ async function renderStatus(main) {
   const quick = pad(quickP);
   quick.innerHTML = '';
   const row = document.createElement('div'); row.className = 'row';
-  const bSess = document.createElement('button'); bSess.className = 'btn'; bSess.textContent = '⌨ open sessions'; bSess.addEventListener('click', () => switchTab('sessions'));
+  const bSess = document.createElement('button'); bSess.className = 'btn primary'; bSess.textContent = '⌨ open sessions'; bSess.addEventListener('click', () => switchTab('sessions'));
   const bOps = document.createElement('button'); bOps.className = 'btn warn'; bOps.textContent = '☠ ops console'; bOps.addEventListener('click', () => switchTab('ops'));
-  const bVlt = document.createElement('button'); bVlt.className = 'btn'; bVlt.textContent = '★ intel vault'; bVlt.addEventListener('click', () => switchTab('vault'));
-  const bCf = document.createElement('button'); bCf.className = 'btn'; bCf.textContent = '▤ edit config'; bCf.addEventListener('click', () => switchTab('config'));
+  const bVlt = document.createElement('button'); bVlt.className = 'btn ghost'; bVlt.textContent = '★ intel vault'; bVlt.addEventListener('click', () => switchTab('vault'));
+  const bCf = document.createElement('button'); bCf.className = 'btn ghost'; bCf.textContent = '▤ edit config'; bCf.addEventListener('click', () => switchTab('config'));
   row.append(bSess, bOps, bVlt, bCf);
   quick.appendChild(row);
   main.appendChild(quickP);
@@ -294,7 +294,7 @@ async function renderSessions(main) {
     </div>`).join('');
     return `<div class="row" style="margin-bottom:8px">
       <span class="muted small" style="flex:1">⌕ ${esc(r.q)} — ${r.matches.length} match(es) · scanned ${r.scanned}/${r.total} sessions${r.seconds ? ` · ${r.seconds}s` : ''}${r.truncated ? ' · first 50 shown' : ''}</span>
-      <button class="btn tiny kill" data-act="closeres">✕</button>
+      <button class="btn ghost" data-act="closeres">✕ close</button>
     </div>${rows || '<div class="muted">nothing matched</div>'}`;
   }
 
@@ -307,14 +307,15 @@ async function renderSessions(main) {
     if (e.target.dataset?.act === 'dosearch') await withSpin(e.target, runSearch);
     if (e.target.dataset?.act === 'closeres') { const b = listWrap.querySelector('#sess-results'); if (b) { b.hidden = true; b.innerHTML = ''; } }
   });
-  listWrap.innerHTML = `<div class="row" style="margin-bottom:8px">
-      <button class="btn tiny" data-act="new">＋ new</button><button class="btn tiny" data-act="refresh">⟳ refresh</button>
+  listWrap.innerHTML = `<div class="row" style="margin-bottom:10px">
+      <button class="btn ghost" data-act="new">＋ new session</button>
+      <button class="btn ghost" data-act="refresh">⟳ refresh</button>
     </div>
-    <div class="row" style="margin-bottom:8px">
+    <div class="row" style="margin-bottom:10px">
       <input id="sess-q" placeholder="search all sessions (incl. message text)…" style="flex:1">
-      <button class="btn tiny" data-act="dosearch">⌕ search</button>
+      <button class="btn primary" data-act="dosearch">⌕ search</button>
     </div>
-    <div class="row" style="margin-bottom:8px">
+    <div class="row" style="margin-bottom:10px">
       <input id="sess-filter" placeholder="quick filter (loaded titles)…" style="flex:1">
     </div>
     <div id="sess-results" hidden></div>
@@ -376,10 +377,10 @@ async function renderSessions(main) {
         box.innerHTML = `<div class="small" style="color:var(--amb)">⚠ pending permission requests</div>` + mine.map(p =>
           `<div class="row" style="margin-top:6px"><span class="badge auto">${esc(p.action || '')}</span><code>${esc((p.resources || []).join(', ').slice(0, 120))}</code></div>`).join('');
         rbody.prepend(box);
-        const tr = document.createElement('div'); tr.className = 'row'; tr.style.marginTop = '6px';
-        const yes = document.createElement('button'); yes.className = 'btn tiny'; yes.textContent = 'allow (once)';
+        const tr = document.createElement('div'); tr.className = 'row compact'; tr.style.marginTop = '8px';
+        const yes = document.createElement('button'); yes.className = 'btn primary'; yes.textContent = 'allow (once)';
         yes.addEventListener('click', async () => { try { await post(`/oc/api/session/${id}/permission/${mine[0].id}/reply`, { decision: 'once' }); toast('permission granted'); openSession(id); } catch (e) { toastErr(e); } });
-        const no = document.createElement('button'); no.className = 'btn kill tiny'; no.textContent = 'reject';
+        const no = document.createElement('button'); no.className = 'btn danger'; no.textContent = 'reject';
         no.addEventListener('click', async () => { try { await post(`/oc/api/session/${id}/permission/${mine[0].id}/reply`, { decision: 'reject' }); toast('permission rejected'); openSession(id); } catch (e) { toastErr(e); } });
         tr.append(yes, no); box.appendChild(tr);
       }
@@ -389,16 +390,17 @@ async function renderSessions(main) {
     rbody.scrollTop = rbody.scrollHeight;
   }
 
-  // composer
-  const composer = document.createElement('div'); composer.className = 'row sess-composer';
+  // composer - clean chat bar
+  const composer = document.createElement('div'); composer.className = 'sess-composer';
+  const inner = document.createElement('div'); inner.className = 'row'; inner.style.gap = '10px'; inner.style.alignItems = 'flex-end';
   const ta = document.createElement('textarea'); ta.id = 'sess-input'; ta.rows = 2; ta.placeholder = 'prompt the selected session… (Enter = send, Shift+Enter = newline)';
-  ta.style.flex = '1';
-  const send = document.createElement('button'); send.className = 'btn'; send.textContent = 'send ▸';
-  const interrupt = document.createElement('button'); interrupt.className = 'btn kill tiny'; interrupt.textContent = '⏹ interrupt';
-  const delBtn = document.createElement('button'); delBtn.className = 'btn kill tiny'; delBtn.textContent = '🗑 delete session';
-  const fork = document.createElement('button'); fork.className = 'btn tiny';
-  fork.textContent = '⑂ fork';
-  composer.append(ta, send, interrupt, fork, delBtn);
+  ta.style.flex = '1'; ta.style.minWidth = '0';
+  const send = document.createElement('button'); send.className = 'btn primary'; send.textContent = 'send ▸';
+  const interrupt = document.createElement('button'); interrupt.className = 'btn warn'; interrupt.textContent = '⏹ interrupt';
+  const fork = document.createElement('button'); fork.className = 'btn ghost'; fork.textContent = '⑂ fork';
+  const delBtn = document.createElement('button'); delBtn.className = 'btn danger'; delBtn.textContent = '🗑 delete';
+  inner.append(ta, send, interrupt, fork, delBtn);
+  composer.appendChild(inner);
   rbody.after(composer);
 
   send.addEventListener('click', async () => {
@@ -423,19 +425,19 @@ async function renderSessions(main) {
     try { await del(`/oc/api/session/${id}`); toast('session deleted'); rbody.innerHTML = 'select a session'; rbody.dataset.sig = ''; rbody.dataset.session = ''; tabState.sessionsSel = null; refreshList(); } catch (e) { toastErr(e); }
   });
 
-  // mission presets + agent/model switching
-  const ctrlRow = document.createElement('div'); ctrlRow.className = 'row'; ctrlRow.style.marginTop = '8px';
-  const preset = document.createElement('select'); preset.id = 'sess-preset'; preset.style.flex = '0 0 auto';
+  // mission presets + agent/model switching - second row
+  const ctrlRow = document.createElement('div'); ctrlRow.className = 'row compact'; ctrlRow.style.marginTop = '6px';
+  const preset = document.createElement('select'); preset.id = 'sess-preset';
   preset.innerHTML = `<option value="">mission preset…</option>
     <option value="recon">◉ passive recon brief</option>
     <option value="summarize">▤ summarize this session</option>
     <option value="harden">⛨ hardening checklist</option>
     <option value="explain">◌ explain last output</option>`;
-  const agSel = document.createElement('select'); agSel.id = 'sess-agent'; agSel.style.flex = '0 0 auto'; agSel.innerHTML = '<option value="">agent…</option>';
+  const agSel = document.createElement('select'); agSel.id = 'sess-agent'; agSel.innerHTML = '<option value="">agent…</option>';
   const mdSel = document.createElement('select'); mdSel.id = 'sess-model'; mdSel.style.flex = '1'; mdSel.innerHTML = '<option value="">model…</option>';
-  const applyBtn = document.createElement('button'); applyBtn.className = 'btn tiny'; applyBtn.textContent = '↧ apply to session';
+  const applyBtn = document.createElement('button'); applyBtn.className = 'btn ghost'; applyBtn.textContent = '↧ apply';
   ctrlRow.append(preset, agSel, mdSel, applyBtn);
-  composer.after(ctrlRow);
+  composer.appendChild(ctrlRow);
 
   const PRESETS = {
     recon: 'You are doing PASSIVE recon on {target}. No active scanning, no brute force, no exploitation. Summarize: dns surface, anything already visible in this session, and your top 3 passive observations. Mark uncertainties clearly.',
@@ -509,7 +511,7 @@ async function renderMcp(main) {
           <label>url</label><input id="mcp-url" placeholder="https://mcp.example.com/mcp">
           <label>headers JSON (optional)</label><textarea id="mcp-headers" rows="2" placeholder='{"Authorization": "Bearer {env:TOKEN}"}'></textarea>
         </div>
-        <div class="row" style="margin-top:10px"><button class="btn" id="mcp-add">▸ install server</button></div>
+        <div class="row" style="margin-top:10px"><button class="btn primary" id="mcp-add">▸ install server</button></div>
       </div>
       <div>
         <div class="small muted" style="margin-bottom:6px">live status + connection control. disconnect works during a run without config surgery.</div>
@@ -568,9 +570,9 @@ async function renderMcp(main) {
         <td><span class="badge ${r.status?.status === 'connected' ? 'ok' : 'idle'}">${esc(r.status?.status || 'unknown')}</span></td>
         <td class="row">
           ${r.status?.status === 'connected'
-        ? `<button class="btn tiny" data-act="disc" data-n="${esc(r.name)}">disconnect</button>`
-        : `<button class="btn tiny" data-act="conn" data-n="${esc(r.name)}">connect</button>`}
-          <button class="btn kill tiny" data-act="rm" data-n="${esc(r.name)}">remove</button>
+        ? `<button class="btn ghost" data-act="disc" data-n="${esc(r.name)}">disconnect</button>`
+        : `<button class="btn ghost" data-act="conn" data-n="${esc(r.name)}">connect</button>`}
+          <button class="btn danger" data-act="rm" data-n="${esc(r.name)}">remove</button>
         </td></tr>`).join('') + `</tbody></table>` : '<div class="muted">no servers configured</div>';
     body.querySelectorAll('button[data-act]').forEach(b => b.addEventListener('click', async () => {
       const n = b.dataset.n;
@@ -640,7 +642,7 @@ async function renderSkills(main) {
   createBar.innerHTML = `
     <input id="sk-name" placeholder="skill-id (lowercase)" style="width:200px">
     <input id="sk-desc" placeholder="description" style="flex:1">
-    <button class="btn" id="sk-create">＋ create skill</button>`;
+    <button class="btn primary" id="sk-create">＋ create skill</button>`;
   body.appendChild(createBar);
   const grid = document.createElement('div'); grid.className = 'skill-grid'; grid.id = 'skill-grid'; body.appendChild(grid);
 
@@ -650,7 +652,7 @@ async function renderSkills(main) {
       <h4>✦ ${esc(s.name)}</h4>
       <div class="muted small">${esc(s.description.slice(0, 120)) || '—'}</div>
       <div class="small muted" style="margin-top:6px">${s.lines} lines · ${esc(s.id)}</div>
-      <div class="row" style="margin-top:8px"><button class="btn tiny" data-ed="${esc(s.id)}">open</button><button class="btn kill tiny" data-rm="${esc(s.id)}">delete</button></div>
+      <div class="row" style="margin-top:8px"><button class="btn ghost" data-ed="${esc(s.id)}">open</button><button class="btn danger" data-rm="${esc(s.id)}">delete</button></div>
     </div>`).join('') || '<div class="muted">no local skills found</div>';
     grid.querySelectorAll('[data-ed]').forEach(b => b.addEventListener('click', () => openSkill(b.dataset.ed)));
     grid.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', async () => {
@@ -668,7 +670,7 @@ async function renderSkills(main) {
       const s = await get('/skills/' + encodeURIComponent(id));
       const box = document.createElement('div');
       box.innerHTML = `<label class="small">${esc(s.file)}</label><textarea id="sk-editor" rows="18" style="width:100%">${esc(s.content)}</textarea>
-       <div class="row" style="margin-top:8px"><button class="btn" id="sk-save">save</button></div>`;
+       <div class="row" style="margin-top:8px"><button class="btn primary" id="sk-save">save</button></div>`;
       openModal('skill ' + id, box);
       $('#sk-save', box).addEventListener('click', async () => {
         try { await put('/skills/' + encodeURIComponent(id), { content: $('#sk-editor', box).value }); toast('skill saved'); $('#modal').close(); if (currentTab === 'skills') refresh(); } catch (e) { toastErr(e); }
@@ -696,9 +698,9 @@ async function renderPlugins(main) {
     const list = (cfg.plugins || []);
     b2.innerHTML = `
       <div class="small muted" style="margin-bottom:6px">the <code>plugins</code> array in your global config (npm package names or paths)</div>
-      <div class="row" style="margin-bottom:8px"><input id="pl-add" placeholder="npm:opencode-plugin-xyz or C:\\path\\plugin.js" style="flex:1"><button class="btn" id="pl-addbtn">＋ add plugin</button></div>
-      <table><tbody>${list.map((x, i) => `<tr><td><code>${esc(typeof x === 'string' ? x : JSON.stringify(x))}</code></td><td class="row"><button class="btn kill tiny" data-i="${i}">remove</button></td></tr>`).join('') || '<tr><td class="muted">no user plugins configured</td></tr>'}</tbody></table>
-      <div class="row" style="margin-top:8px"><button class="btn tiny" id="pl-check">⟳ check plugin updates</button></div>`;
+      <div class="row" style="margin-bottom:8px"><input id="pl-add" placeholder="npm:opencode-plugin-xyz or C:\\path\\plugin.js" style="flex:1"><button class="btn primary" id="pl-addbtn">＋ add plugin</button></div>
+      <table><tbody>${list.map((x, i) => `<tr><td><code>${esc(typeof x === 'string' ? x : JSON.stringify(x))}</code></td><td class="row"><button class="btn danger" data-i="${i}">remove</button></td></tr>`).join('') || '<tr><td class="muted">no user plugins configured</td></tr>'}</tbody></table>
+      <div class="row" style="margin-top:8px"><button class="btn ghost" id="pl-check">⟳ check plugin updates</button></div>`;
     $('#pl-addbtn', b2).addEventListener('click', async () => {
       const v = $('#pl-add', b2).value.trim(); if (!v) return;
       try { const parsed = await loadEditableConfig('plugin add'); if (!parsed) return; parsed.plugins = [...(parsed.plugins || []), v]; await post('/config/save', { content: JSON.stringify(parsed, null, 2) }); toast('plugin added'); switchTab('plugins'); } catch (e) { toastErr(e); }
@@ -721,11 +723,11 @@ async function renderConfig(main) {
     <div class="small muted" style="margin-bottom:6px">${esc(data.path)}${data.jsonc ? ' · <span style="color:var(--amb)">JSONC detected — saving rewrites the file as plain JSON (comments are dropped, a backup is kept)</span>' : ''} · edits get automatic timestamped backups and reload the OpenCode config.</div>
     <textarea id="cfg-editor" rows="20" style="width:100%">${esc(data.text)}</textarea>
     <div class="row" style="margin-top:8px">
-      <button class="btn" id="cfg-validate">⊙ validate</button>
-      <button class="btn" id="cfg-save">▣ save + reload</button>
+      <button class="btn ghost" id="cfg-validate">⊙ validate</button>
+      <button class="btn primary" id="cfg-save">▣ save + reload</button>
       <span class="muted small">backups:</span>
       <select id="cfg-backups" style="min-width:260px">${(data.backups || []).map(f => `<option>${esc(f)}</option>`).join('')}</select>
-      <button class="btn warn tiny" id="cfg-restore">⟲ restore</button>
+      <button class="btn warn" id="cfg-restore">⟲ restore</button>
     </div>
     <pre id="cfg-note" class="muted small" style="margin-top:8px"></pre>`;
   $('#cfg-validate').addEventListener('click', async () => {
@@ -779,7 +781,7 @@ function jobRowHtml(job) {
     <td class="muted small">${esc((job.args || []).join(' ').slice(0, 90))}</td>
     <td><span class="badge ${job.state === 'running' ? 'auto' : job.state === 'done' ? 'ok' : 'no'}">${esc(job.state)}</span></td>
     <td>${fmtTime(job.startedAt)}</td>
-    <td><button class="btn kill tiny" data-kill="${esc(job.id)}">kill</button></td>`;
+    <td><button class="btn danger" data-kill="${esc(job.id)}">kill</button></td>`;
 }
 function wireJobRow(tr) {
   tr.querySelectorAll('[data-kill]').forEach(b => b.addEventListener('click', async () => { try { await post('/ops/jobs/' + b.dataset.kill + '/kill'); toast('kill requested'); } catch (e) { toastErr(e); } }));
@@ -820,8 +822,8 @@ async function renderOps(main) {
       banner.classList.add('on');
       banner.innerHTML = `☠ ARMED · target <span class="tgt">${esc(armState.target)}</span> · scope ${esc(armState.scope)} · expires in ${fmtDur(armState.expiresIn)}
         <div class="row" style="margin-top:6px">
-        <button class="btn kill tiny" id="disarm-btn">✖ disarm</button>
-        <button class="btn kill tiny" id="killall-btn">☢ kill all ops</button>
+        <button class="btn danger" id="disarm-btn">✖ disarm</button>
+        <button class="btn warn" id="killall-btn">☢ kill all ops</button>
         <span class="small muted">${esc(armState.note || '')}</span></div>`;
       $('#disarm-btn').addEventListener('click', async () => { armState = await post('/ops/disarm'); renderBanner(); renderArmPill(); toast('ops disarmed', 'warn'); });
       $('#killall-btn').addEventListener('click', () => withSpin($('#killall-btn'), async () => { const r = await post('/ops/killall'); toast('killed ' + r.killed + ' running jobs', 'warn'); }));
@@ -859,7 +861,7 @@ async function renderOps(main) {
       Object.entries(tools).map(([n, t]) => `<div class="tool-chip" style="margin-bottom:4px">
         <span><i class="dot ${t?.exe ? 'on' : ''}"></i><span>${esc(n)}</span> <span class="muted small">${esc(TOOLDESC[n] || t?.description || '')}</span></span>
         <span class="tp">${esc(t?.exe || 'missing')}</span></div>`).join('') +
-      `<div class="row" style="margin-top:8px"><button class="btn tiny" id="tools-rescan">⟳ rescan</button></div>`;
+      `<div class="row" style="margin-top:8px"><button class="btn ghost" id="tools-rescan">⟳ rescan</button></div>`;
     $('#tools-rescan', tb).addEventListener('click', () => withSpin($('#tools-rescan', tb), async () => { await get('/ops/tools?force=1'); renderTools(); }));
   }
   const TOOLDESC = {};
@@ -911,7 +913,7 @@ async function renderOps(main) {
   const ag = await get('/agent/state').catch(() => ({ installed: false, name: '?' }));
   const agRow = document.createElement('div'); agRow.className = 'row'; agRow.style.marginTop = '10px';
   agRow.innerHTML = `<span class="badge ${ag.installed ? 'ok' : 'idle'}">recon agent · ${ag.installed ? 'installed' : 'not installed'}</span>`;
-  const deploy = document.createElement('button'); deploy.className = 'btn'; deploy.textContent = '⌁ deploy recon agent session';
+  const deploy = document.createElement('button'); deploy.className = 'btn primary'; deploy.textContent = '⌁ deploy recon agent session';
   deploy.addEventListener('click', () => withSpin(deploy, async () => {
     const target = ($('#ops-target')?.value || armState.target || '').trim();
     if (!target) return toast('target required (arm first)', 'warn');
@@ -921,7 +923,7 @@ async function renderOps(main) {
     tabState.sessionsSel = r.sessionID;
     switchTab('sessions');
   }, 'deploying…'));
-  const inst = document.createElement('button'); inst.className = 'btn tiny'; inst.textContent = 'install agent';
+  const inst = document.createElement('button'); inst.className = 'btn ghost'; inst.textContent = 'install agent';
   inst.addEventListener('click', () => withSpin(inst, async () => {
     await post('/agent/install');
     toast('agent installed into global config');
@@ -936,8 +938,8 @@ async function renderOps(main) {
     <div class="small muted" style="margin-bottom:8px">dns + passive http header fetch using node only — no nmap required. consent-gated &amp; audited like tool runs.</div>
     <div class="row">
       <input id="probe-target" placeholder="target host" style="flex:1">
-      <button class="btn tiny" id="probe-dns">⊙ dns</button>
-      <button class="btn tiny" id="probe-http">⇄ http</button>
+      <button class="btn ghost" id="probe-dns">⊙ dns</button>
+      <button class="btn ghost" id="probe-http">⇄ http</button>
     </div>
     <div id="probe-out" class="term" style="min-height:100px;max-height:280px;margin-top:8px"><div class="l-meta">probe results land here (json) — can be copied into the vault.</div></div>
     <div class="row" style="margin-top:6px"><span class="muted small" id="probe-last">no probes yet</span></div>`;
@@ -973,8 +975,8 @@ async function renderOps(main) {
         <td class="small"><span class="accent">${esc(a.id)}</span></td>
         <td class="muted small">${a.bytes}</td>
         <td class="muted small">${esc(new Date(a.mtime).toLocaleString())}</td>
-        <td class="row"><button class="btn tiny" data-view="${esc(a.id)}">view</button></td></tr>`).join('') || '<tr><td colspan="4" class="muted">no artifacts yet — run a job and output is saved automatically</td></tr>'}
-    </tbody></table><div class="row" style="margin-top:8px"><button class="btn tiny" id="art-refresh">⟳ refresh</button></div>`;
+        <td class="row"><button class="btn ghost" data-view="${esc(a.id)}">view</button></td></tr>`).join('') || '<tr><td colspan="4" class="muted">no artifacts yet — run a job and output is saved automatically</td></tr>'}
+    </tbody></table><div class="row" style="margin-top:8px"><button class="btn ghost" id="art-refresh">⟳ refresh</button></div>`;
     ab.querySelector('#art-refresh').addEventListener('click', renderArtifacts);
     ab.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', async () => {
       try {
@@ -1022,8 +1024,8 @@ async function renderVault(main) {
         <label>finding (one line)</label><input id="in-finding" placeholder="e.g. admin panel exposed without auth" style="width:100%">
         <label>evidence (paste artifact / output excerpt)</label><textarea id="in-evidence" rows="3" style="width:100%"></textarea>
         <div class="row" style="margin-top:8px">
-          <button class="btn" id="in-add">＋ log finding</button>
-          <button class="btn tiny" id="in-export">⇩ export report (md)</button>
+          <button class="btn primary" id="in-add">＋ log finding</button>
+          <button class="btn ghost" id="in-export">⇩ export report (md)</button>
           <span class="muted small" id="in-count"></span>
         </div>
       </div>
@@ -1070,7 +1072,7 @@ async function renderVault(main) {
             <b class="accent">${esc(it.target || '—')}</b>
             <span class="muted small">${esc((it.ts || '').replace('T', ' ').slice(0, 16))}</span>
           </span>
-          <button class="btn kill tiny" data-del="${esc(it.id)}" title="delete">✖</button>
+          <button class="btn danger" data-del="${esc(it.id)}" title="delete">🗑</button>
         </div>
         <div style="margin-top:4px">${esc(it.finding)}</div>
         ${it.evidence ? `<div class="vault-ev">${esc(it.evidence)}</div>` : ''}
@@ -1189,12 +1191,12 @@ async function renderCluster(main) {
             <b>⌬ ${esc(c.name)}</b>
             <span class="muted small">${c.tasksDone}/${c.tasksTotal} tasks · ${c.nodes} nodes ×${c.concurrency} · ${esc(c.model ? c.model.providerID + '/' + c.model.id : 'default model')}</span>
           </span>
-          <span class="row">
-            <button class="btn tiny" data-act="detail" data-id="${esc(c.id)}">${clusterOpenId === c.id ? 'collapse' : 'detail'}</button>
-            ${['planning', 'running', 'synthesizing'].includes(c.status) ? `<button class="btn kill tiny" data-act="abort" data-id="${esc(c.id)}">⏹ abort</button>` : ''}
-            <button class="btn tiny" data-act="peek" data-id="${esc(c.orchestratorId)}" data-name="${esc(c.id)}">✎ orchestrator</button>
-            <button class="btn tiny" data-act="transcript" data-id="${esc(c.id)}">⇩ md</button>
-            <button class="btn kill tiny" data-act="delete" data-id="${esc(c.id)}">🗑</button>
+          <span class="row compact">
+            <button class="btn ghost" data-act="detail" data-id="${esc(c.id)}">${clusterOpenId === c.id ? 'collapse' : 'detail'}</button>
+            ${['planning', 'running', 'synthesizing'].includes(c.status) ? `<button class="btn warn" data-act="abort" data-id="${esc(c.id)}">⏹ abort</button>` : ''}
+            <button class="btn ghost" data-act="peek" data-id="${esc(c.orchestratorId)}" data-name="${esc(c.id)}">✎ orchestrator</button>
+            <button class="btn ghost" data-act="transcript" data-id="${esc(c.id)}">⇩ md</button>
+            <button class="btn danger" data-act="delete" data-id="${esc(c.id)}">🗑</button>
           </span>
         </div>
         <div class="muted small" style="margin-top:3px">${esc(c.mission)}</div>
@@ -1226,14 +1228,14 @@ async function renderCluster(main) {
             return `<tr><td class="small"><span class="accent">${esc(t.id)}</span> ${esc(t.title)}</td><td class="small">node-${esc(ni)}</td>
               <td><span class="badge ${t.state === 'done' ? 'ok' : t.state === 'running' ? 'auto' : t.state === 'failed' ? 'no' : 'idle'}">${esc(t.state)}</span></td>
               <td class="muted small">${ms}</td>
-              <td><button class="btn tiny" data-peek-node="${esc(t.nodeId || '')}">${t.nodeId ? '✎' : ''}</button></td></tr>`;
+              <td><button class="btn ghost" data-peek-node="${esc(t.nodeId || '')}">${t.nodeId ? '✎' : ''}</button></td></tr>`;
           }).join('') || '<tr><td class="muted">planning…</td></tr>'}
           </tbody></table>
           ${(c.pendingPermissions || []).length ? `<div class="panel" style="padding:8px;margin-top:8px">
             <div class="small" style="color:var(--amb)">⚠ cluster sessions awaiting permission (policy: ${esc(c.policy)})</div>
-            ${c.pendingPermissions.map(pp => `<div class="row" style="margin-top:4px"><span class="badge auto">${esc(pp.action || '')}</span><code class="small">${esc((pp.resources || []).join(', ').slice(0, 100))}</code>
-              <button class="btn tiny" data-perm="${esc(pp.sessionID)}|${esc(pp.id)}">allow</button>
-              <button class="btn kill tiny" data-nope="${esc(pp.sessionID)}|${esc(pp.id)}">reject</button></div>`).join('')}
+            ${c.pendingPermissions.map(pp => `<div class="row compact" style="margin-top:4px"><span class="badge auto">${esc(pp.action || '')}</span><code class="small">${esc((pp.resources || []).join(', ').slice(0, 100))}</code>
+              <button class="btn primary" data-perm="${esc(pp.sessionID)}|${esc(pp.id)}">allow</button>
+              <button class="btn danger" data-nope="${esc(pp.sessionID)}|${esc(pp.id)}">reject</button></div>`).join('')}
           </div>` : ''}
           <div class="small muted" style="margin-top:8px">synthesis</div>
           <pre class="term" style="min-height:60px;max-height:300px">${esc(c.synthesis || 'pending…')}</pre>
